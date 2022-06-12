@@ -18,6 +18,20 @@ int **cria_grafo(int vertice)
     return grafo;
 }
 
+void destroi_grafo(int vertice, int **grafo)
+{
+    int i;
+    for (i = 0; i < vertice; i++)
+    {
+        // Libera cada vetor alocado para grafo
+        free(grafo[i]);
+    }
+    // Libera o vetor de vetores grafo
+    free(grafo);
+
+    return;
+}
+
 int zera_grafo(int vertice, int **grafo)
 {
     if (vertice <= 0)
@@ -106,4 +120,6 @@ int main(void)
     int **grafo = ler_grafo();
 
     printa_grafo(2, grafo);
+
+    destroi_grafo(2, grafo);
 }
