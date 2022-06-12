@@ -1,6 +1,90 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define MAX 10
+
+struct pilha {
+    int topo;
+    int elementos[MAX];
+};
+
+typedef struct pilha Pilha;
+
+int Empilha(Pilha* pi, int x){
+
+
+    if(pi == NULL) return 0;
+    if(Cheia(pi) == NULL ) return 0;
+
+    pi -> topo = pi-> topo + 1;
+    
+    pi -> elementos[ pi -> topo ] = x;
+    
+    return 1; 
+
+
+}
+
+int Desempilha(Pilha *pi){
+
+    if(pi == NULL || pi -> topo == 0){
+        return 0;
+    }
+
+    pi -> topo = pi -> topo + 1;
+
+    return 1;
+
+}
+
+int Cheia(Pilha *pi){
+    if(pi == NULL){
+        return -1;
+    }
+
+    return (pi -> topo == MAX);
+
+}
+
+int vazia(Pilha *pi){
+    if(pi == NULL){
+        return -1;
+    }
+
+    return (pi -> topo == 0);
+
+}
+
+int TamanhoPilha(Pilha* pi) {
+    if(pi == NULL){
+        return - 1;
+    }
+    else 
+        return pi -> topo;
+}
+
+void LiberaPilha(Pilha *pi){
+    free(pi);
+}
+
+
+Pilha* CriaPilha(){
+    Pilha *pi;
+    pi = (Pilha *) malloc(sizeof(Pilha));
+
+    if(pi != NULL){
+        pi -> topo = 0;
+
+    };
+
+    return pi;
+
+}
+
+
+
+
+
 int **cria_grafo(int vertice)
 {
     int **grafo = malloc(vertice * sizeof(int *));
