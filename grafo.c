@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX 10
+#define MAX 2
 
 struct pilha {
     int topo;
@@ -10,80 +10,93 @@ struct pilha {
 
 typedef struct pilha Pilha;
 
-int Empilha(Pilha* pi, int x){
+int CriaPilha(){
+    Pilha *pilha;
 
+    pilha = (Pilha *) malloc(sizeof(Pilha));
 
-    if(pi == NULL) return 0;
-    if(Cheia(pi) == NULL ) return 0;
+    // Testando se a alocação deu certo
+    if(pilha != NULL){
+        pilha -> topo = 0;
+    };
 
-    pi -> topo = pi-> topo + 1;
-    
-    pi -> elementos[ pi -> topo ] = x;
-    
-    return 1; 
-
-
+    return pilha;
 }
 
-int Desempilha(Pilha *pi){
+int Cheia(Pilha *pilha){
+    // Ocorreu algum erro na criação da pilha
+    if(pilha == NULL){
+        return -1;
+    }
 
-    if(pi == NULL || pi -> topo == 0){
+    int pilhaCheia = pilha -> topo == MAX;
+
+    if(pilhaCheia){
+        return 1;
+    } else {
         return 0;
     }
 
-    pi -> topo = pi -> topo + 1;
+}
+
+int Vazia(Pilha *pilha){
+
+    // Ocorreu algum problema na criação da pilha
+    if(pilha == NULL){
+        return -1;
+    }
+
+    int pilhaVazia = pilha -> topo == 0;
+    
+    if( pilhaVazia ){
+        return 1;
+    } 
+    else {
+        return 0;
+    }
+}
+
+int Empilha(Pilha* pilha, int elemento){
+
+    // Ocorreu algum problema na criação da pilha
+    if(pilha == NULL) return 0;
+    
+    // Se a pilha estiver cheia nao terá como empilhar
+    if( Cheia(pilha) ) return 0;
+
+    // Incrementando o topo da pilha 
+    pilha -> topo++;
+    
+    // Colocando o elemento no topo
+    pilha -> elementos[ pilha -> topo ] = elemento;
+    
+    return 1; 
+
+}
+
+int Desempilha(Pilha *pilha){
+
+    if(pilha == NULL || pilha -> topo == 0){
+        return 0;
+    }
+
+    pilha -> topo--;
 
     return 1;
 
 }
 
-int Cheia(Pilha *pi){
-    if(pi == NULL){
-        return -1;
-    }
-
-    return (pi -> topo == MAX);
-
-}
-
-int vazia(Pilha *pi){
-    if(pi == NULL){
-        return -1;
-    }
-
-    return (pi -> topo == 0);
-
-}
-
-int TamanhoPilha(Pilha* pi) {
-    if(pi == NULL){
+int TamanhoPilha(Pilha* pilha) {
+    if(pilha == NULL){
         return - 1;
     }
     else 
-        return pi -> topo;
+        return pilha -> topo;
 }
 
-void LiberaPilha(Pilha *pi){
-    free(pi);
+void Destroi(Pilha *pilha){
+    free(pilha);
 }
-
-
-Pilha* CriaPilha(){
-    Pilha *pi;
-    pi = (Pilha *) malloc(sizeof(Pilha));
-
-    if(pi != NULL){
-        pi -> topo = 0;
-
-    };
-
-    return pi;
-
-}
-
-
-
-
 
 int **cria_grafo(int vertice)
 {
