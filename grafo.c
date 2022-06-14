@@ -11,7 +11,7 @@ struct pilha {
 
 typedef struct pilha Pilha;
 
-int CriaPilha(){
+Pilha *CriaPilha(){
     Pilha *pilha;
 
     pilha = (Pilha *) malloc(sizeof(Pilha));
@@ -21,7 +21,7 @@ int CriaPilha(){
 
         pilha -> topo = -1;
     
-    };
+    }
 
     return pilha;
 }
@@ -214,8 +214,6 @@ int **ler_grafo(void)
 
 int main(void)
 {
-    // Pilha *pilha = CriaPilha();    
-    // int elementoDesempilhado;
 
     // int **grafo = ler_grafo();
 
