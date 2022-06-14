@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MAX 2
+#define MAX 4
 
+// O topo dessa pilha começa em -1. Pois quando formos usar Empilha, a informação inserida será em elementos[topo + 1]
 struct pilha {
     int topo;
     int elementos[MAX];
@@ -17,7 +18,9 @@ int CriaPilha(){
 
     // Testando se a alocação deu certo
     if(pilha != NULL){
-        pilha -> topo = 0;
+
+        pilha -> topo = -1;
+    
     };
 
     return pilha;
@@ -29,7 +32,7 @@ int Cheia(Pilha *pilha){
         return -1;
     }
 
-    int pilhaCheia = pilha -> topo == MAX;
+    int pilhaCheia = pilha -> topo == MAX - 1;
 
     if(pilhaCheia){
         return 1;
@@ -46,7 +49,7 @@ int Vazia(Pilha *pilha){
         return -1;
     }
 
-    int pilhaVazia = pilha -> topo == 0;
+    int pilhaVazia = pilha -> topo == -1;
     
     if( pilhaVazia ){
         return 1;
@@ -65,7 +68,7 @@ int Empilha(Pilha* pilha, int elemento){
     if( Cheia(pilha) ) return 0;
 
     // Incrementando o topo da pilha 
-    pilha -> topo++;
+    pilha -> topo = pilha -> topo + 1;
     
     // Colocando o elemento no topo
     pilha -> elementos[ pilha -> topo ] = elemento;
@@ -74,25 +77,22 @@ int Empilha(Pilha* pilha, int elemento){
 
 }
 
-int Desempilha(Pilha *pilha){
+int Desempilha(Pilha *pilha, int *elementoDesempilhado){
 
-    if(pilha == NULL || pilha -> topo == 0){
+    if(pilha == NULL || pilha -> topo == -1){
         return 0;
     }
 
-    pilha -> topo--;
+
+    *elementoDesempilhado = pilha -> elementos[pilha -> topo];
+
+    // Decrementando o topo da pilha
+    pilha -> topo = pilha -> topo - 1;
 
     return 1;
 
 }
 
-int TamanhoPilha(Pilha* pilha) {
-    if(pilha == NULL){
-        return - 1;
-    }
-    else 
-        return pilha -> topo;
-}
 
 void Destroi(Pilha *pilha){
     free(pilha);
@@ -214,9 +214,12 @@ int **ler_grafo(void)
 
 int main(void)
 {
-    int **grafo = ler_grafo();
+    // Pilha *pilha = CriaPilha();    
+    // int elementoDesempilhado;
 
-    printa_grafo(2, grafo);
+    // int **grafo = ler_grafo();
 
-    destroi_grafo(2, grafo);
+    // printa_grafo(2, grafo);
+
+    // destroi_grafo(2, grafo);
 }
