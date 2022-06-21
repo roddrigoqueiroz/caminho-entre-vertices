@@ -44,7 +44,7 @@ int main(void)
     int **grafo = ler_grafo(&vertice, &qtd_arestas);
 
     int resultado = existe_caminho(vertice, qtd_arestas, grafo);
-    printf("Resultado: %d\n", resultado);
+    printf("%d\n", resultado);
 
     destroi_grafo(vertice, grafo);
     return 0;
@@ -67,6 +67,7 @@ int proximo_vertice(int vertice, int *v_saida, int **grafo)
         // Checa se existe uma aresta na posição grafo[i][j] e atualiza o contador
         if (grafo[*v_saida][j] != 0)
         {
+            *v_saida = j;
             contador++;
         }
         if (contador == 2)
@@ -75,6 +76,11 @@ int proximo_vertice(int vertice, int *v_saida, int **grafo)
             return 1; // Deu certo
         }
     }
+    // Se depois que eu percorrer o for o contador for == 1, significa que eu encontrei apenas um vizinho e, portanto, devo
+    // usá-lo na função existe_caminho para encontrar o caminho correto
+    if (contador == 1)
+        return 1; // Deu certo
+    
     return 0; // Deu errado. Não tem proximo vertice
 }
 
