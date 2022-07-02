@@ -1,3 +1,11 @@
+/*
+Alunos:
+
+Daniel de Souza Cordeiro, 12111BSI244
+Emanuel Henrique Vieira Dias, 12111BSI218,
+Rodrigo Queiroz Neves, 12111BSI220
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,11 +22,11 @@ typedef struct pilha Pilha;
 // PROTÓTIPOS DAS FUNÇÕES
 
 // FUNÇÕES PARA MANIPULAR O GRAFO
-int **ler_grafo(int *vertice, int *qtd_aresta);
-void printa_grafo(int vertice, int **grafo);
-int zera_grafo(int vertice, int **grafo);
-void destroi_grafo(int vertice, int **grafo);
-int **cria_grafo(int vertice);
+int **ler_grafo(int *qtd_vertice, int *qtd_aresta);
+void printa_grafo(int qtd_vertice, int **grafo);
+int zera_grafo(int qtd_vertice, int **grafo);
+void destroi_grafo(int qtd_vertice, int **grafo);
+int **cria_grafo(int qtd_vertice);
 
 // FUNÇÕES PARA MANIPULAR A PILHA
 void destroi(Pilha *pilha);
@@ -30,8 +38,8 @@ Pilha *criaPilha(int qtd_arestas);
 void printa_pilha(Pilha *pilha);
 
 // FUNÇÕES PARA CHECAR A EXISTÊNCIA DE CAMINHO
-int existe_caminho(int vertice, int qtd_arestas, int **grafo);
-int proximo_vertice(int vertice, int *v_saida, int **grafo);
+int existe_caminho(int v_saida, int v_chegada, int qtd_vertice, int qtd_arestas, int **grafo);
+int proximo_vertice(int qtd_vertice, int *v_saida, int **grafo);
 
 int main(void)
 {
@@ -39,18 +47,22 @@ int main(void)
     // Para algo ser vizinho de N, tenho que grafo[N][i] != 0
     // Posso colocar essa condição dentro de um for com um empilha lá dentro.
 
-    int vertice, qtd_arestas;
+    int qtd_vertice, qtd_arestas;
 
-    int **grafo = ler_grafo(&vertice, &qtd_arestas);
+    int **grafo = ler_grafo(&qtd_vertice, &qtd_arestas);
 
-    int resultado = existe_caminho(vertice, qtd_arestas, grafo);
+    int v_saida, v_chegada; // Vertices de saída e chegada
+    scanf("%d", &v_saida);
+    scanf("%d", &v_chegada);
+
+    int resultado = existe_caminho(v_saida, v_chegada, qtd_vertice, qtd_arestas, grafo);
     printf("%d\n", resultado);
 
-    destroi_grafo(vertice, grafo);
+    destroi_grafo(qtd_vertice, grafo);
     return 0;
 }
 
-int proximo_vertice(int vertice, int *v_saida, int **grafo)
+int proximo_vertice(int qtd_vertice, int *v_saida, int **grafo)
 {
     // Esta função se baseia no algoritmo indicado no trabalho, que funciona colocando todos
     // os vizinhos de um vértice na pilha e depois retirando o elemento do topo.
@@ -62,12 +74,11 @@ int proximo_vertice(int vertice, int *v_saida, int **grafo)
     int contador = 0;
     // Percorre a base de dados buscando 2 arestas para pegar o índice da 2ª, uma vez que a primeira
     // foi retirada pelo desempilha e o indice dela não me é útil
-    for (j = vertice - 1; j >= 0; j--)
+    for (j = qtd_vertice - 1; j >= 0; j--)
     {
         // Checa se existe uma aresta na posição grafo[i][j] e atualiza o contador
         if (grafo[*v_saida][j] != 0)
         {
-            *v_saida = j;
             contador++;
         }
         if (contador == 2)
@@ -76,72 +87,79 @@ int proximo_vertice(int vertice, int *v_saida, int **grafo)
             return 1; // Deu certo
         }
     }
-    // Se depois que eu percorrer o for o contador for == 1, significa que eu encontrei apenas um vizinho e, portanto, devo
-    // usá-lo na função existe_caminho para encontrar o caminho correto
-    if (contador == 1)
-        return 1; // Deu certo
-    
-    return 0; // Deu errado. Não tem proximo vertice
+    return 0; // Deu errado. Não tem proximo qtd_vertice
 }
 
 // Esta função está limitada a buscar um caminho por vértices que tenham mais de um vizinho
-int existe_caminho(int vertice, int qtd_arestas, int **grafo)
+int existe_caminho(int v_saida, int v_chegada, int qtd_vertice, int qtd_arestas, int **grafo)
 {
-    int v_saida, v_chegada; // Vertices de saída e chegada
-    scanf("%d", &v_saida);
-    scanf("%d", &v_chegada);
-
     // Checa se os vértices são valores válidos
     if (v_saida <= 0 || v_chegada <= 0)
         return -1;
-    if (v_saida > vertice || v_chegada > vertice)
+    if (v_saida > qtd_vertice || v_chegada > qtd_vertice)
         return -1;
 
     Pilha *pilha = criaPilha(qtd_arestas);
     if (pilha == NULL)
         return -2;
 
-    int j, variavel;
-    int caminho = 0;
+    int j;
+    int desempilhado = -1;
+    int custo_caminho = 0;
     int flag = 0;
     // Ajustando os valores dos vértices para manipular arrays
     v_saida--;
     v_chegada--;
 
+    // Faço uma copia do vértice de saída para poder lembrar de qual vértice saí, caso não consiga achar
+    // um caminho de primeira
+    const int copia_v_saida = v_saida;
+
+    empilha(pilha, v_saida);
     // Começa o loop direto, pois a pilha já inicia vazia
     do
     {
         // Percorre a base de dados buscando uma aresta
-        for (j = 0; j < vertice; j++)
+        for (j = 0; j < qtd_vertice; j++)
         {
             if (grafo[v_saida][j] != 0)
             {
                 // Empilha a aresta
-                empilha(pilha, grafo[v_saida][j]);
+                empilha(pilha, j);
                 flag = 1;
             }
             if (j == v_chegada && grafo[v_saida][j] != 0)
             {
-                // Encontrou o caminho requisitado
-                desempilha(pilha, &variavel);
-                caminho += variavel;
+                // Encontrou o custo_caminho requisitado
+                desempilha(pilha, &desempilhado);
+                custo_caminho += grafo[v_saida][desempilhado];
                 destroi(pilha);
-                return caminho;
+                return custo_caminho;
             }
+        }
+        if (flag == 0)
+        {
+            // Recomeço a procurar pelo próximo vértice na pilha
+            if (desempilha(pilha, &desempilhado) == 0)
+            {
+                destroi(pilha);
+                return -1; // Não há caminho, a pilha está vazia
+            }
+            v_saida = desempilhado;
+            // Essa linha de código não garante que eu volte para o começo do meu programa e siga a partir dali.
+            // Isso porquê, posso ter um vértice que não tem vizinhos e que o seu predecessor (o vértice anterior) não seja vizinho
+            // do vértice de saída.
+            // Eu tenho que garantir de alguma forma que o retorno seja feito de forma adequada, resultando numa soma correta.
+            custo_caminho = grafo[copia_v_saida][desempilhado];
         }
         if (flag == 1)
         {
-            desempilha(pilha, &variavel); // Desempilha para tirar o elemento do topo
-            desempilha(pilha, &variavel); // Desempilha para usar o elemento e somar ao caminho
-            caminho += variavel;
-            empilha(pilha, variavel); // empilha o elemento desempilhado
-            // Busca o próximo vertice a ser usado e, caso não encontre (função = 0), quebro o do-while para não gerar
-            // um loop infinito
-            if (proximo_vertice(vertice, &v_saida, grafo) == 0)
-                break;
+            desempilha(pilha, &desempilhado);
+            custo_caminho += grafo[v_saida][desempilhado];
+            v_saida = desempilhado;
             flag = 0;
         }
-    } while(vazia(pilha) == 0);
+    } while(1);
 
     destroi(pilha);
     return -1; // Deu errado. Não há caminho.
@@ -233,7 +251,7 @@ int desempilha(Pilha *pilha, int *elementoDesempilhado)
 {
     // Checa se os valores são válidos
     if(pilha == NULL || vazia(pilha) == 1)
-        return 0;
+        return 0; // Desempilha deu errado
 
     // Pega o elemento do topo da pilha
     *elementoDesempilhado = pilha -> elementos[pilha -> topo];
@@ -258,18 +276,18 @@ void destroi(Pilha *pilha)
 //
 
 // Na prática esta função cria uma matriz quadrada de tamanho vértice usando alocação dinâmica
-int **cria_grafo(int vertice)
+int **cria_grafo(int qtd_vertice)
 {
     // Aloca memória para um ponteiro que guardará vértices de tamanho int * (ponteiro pra inteiro)
-    int **grafo = malloc(vertice * sizeof(int *));
+    int **grafo = malloc(qtd_vertice * sizeof(int *));
     if (grafo == NULL)
         return NULL;
 
     // Aloca memória para um ponteiro para inteiro de tamanho vértice
     int i;
-    for (i = 0; i < vertice; i++)
+    for (i = 0; i < qtd_vertice; i++)
     {
-        grafo[i] = malloc(vertice * sizeof(int));
+        grafo[i] = malloc(qtd_vertice * sizeof(int));
         if (grafo[i] == NULL)
             return NULL;
     }
@@ -277,10 +295,10 @@ int **cria_grafo(int vertice)
     return grafo;
 }
 
-void destroi_grafo(int vertice, int **grafo)
+void destroi_grafo(int qtd_vertice, int **grafo)
 {
     int i;
-    for (i = 0; i < vertice; i++)
+    for (i = 0; i < qtd_vertice; i++)
     {
         // Libera cada vetor alocado para grafo
         free(grafo[i]);
@@ -291,17 +309,17 @@ void destroi_grafo(int vertice, int **grafo)
     return;
 }
 
-int zera_grafo(int vertice, int **grafo)
+int zera_grafo(int qtd_vertice, int **grafo)
 {
     // Checa se o vértice ou grafo são válidos
-    if (vertice <= 0 || grafo == NULL)
+    if (qtd_vertice <= 0 || grafo == NULL)
         return -1;
 
     // Zera o grafo
     int i, j;
-    for (i = 0; i < vertice; i++)
+    for (i = 0; i < qtd_vertice; i++)
     {
-        for (j = 0; j < vertice; j++)
+        for (j = 0; j < qtd_vertice; j++)
         {
             grafo[i][j] = 0;
         }
@@ -310,19 +328,19 @@ int zera_grafo(int vertice, int **grafo)
     return 1;
 }
 
-void printa_grafo(int vertice, int **grafo)
+void printa_grafo(int qtd_vertice, int **grafo)
 {
     int i, j;
 
     // Checa se o vértice ou grafo são válidos
-    if (vertice <= 0 || grafo == NULL)
+    if (qtd_vertice <= 0 || grafo == NULL)
         return;
 
     // Printa o grafo na tela como uma matriz
     printf("\n");
-    for (i = 0; i < vertice; i++)
+    for (i = 0; i < qtd_vertice; i++)
     {
-        for (j = 0; j < vertice; j++)
+        for (j = 0; j < qtd_vertice; j++)
         {
             printf("%d ", grafo[i][j]);
         }
@@ -331,22 +349,22 @@ void printa_grafo(int vertice, int **grafo)
     }
 }
 
-int **ler_grafo(int *vertice, int *qtd_aresta)
+int **ler_grafo(int *qtd_vertice, int *qtd_aresta)
 {
     // Inicia os vertices, arestas e grafos a serem utilizados
-    *vertice = -1;
-    scanf("%d", vertice);
+    *qtd_vertice = -1;
+    scanf("%d", qtd_vertice);
 
     *qtd_aresta = -1;
     scanf("%d", qtd_aresta);
 
-    if (*vertice <= 0 || *qtd_aresta <= 0)
+    if (*qtd_vertice <= 0 || *qtd_aresta <= 0)
         return NULL;
 
     // Cria um matriz chamada grafo usando alocação dinâmica
-    int **grafo = cria_grafo(*vertice);
+    int **grafo = cria_grafo(*qtd_vertice);
 
-    if (zera_grafo(*vertice, grafo) == -1)
+    if (zera_grafo(*qtd_vertice, grafo) == -1)
         return NULL;
 
     int vertice_a = -1;
@@ -366,7 +384,7 @@ int **ler_grafo(int *vertice, int *qtd_aresta)
             return NULL;
 
         // Caso o usuário resolva colocar o valor de um vertice inválido, a função retorna erro
-        if (vertice_a == vertice_b || vertice_a > *vertice || vertice_b > *vertice)
+        if (vertice_a == vertice_b || vertice_a > *qtd_vertice || vertice_b > *qtd_vertice)
             return NULL;
 
         // Coloca as arestas nas posições correspondentes do grafo
